@@ -8,6 +8,7 @@ class MoviesController < ApplicationController
 
   def index
     sort_by, sort_by_direction = params[:sort], params[:direction]
+    @all_ratings = Movie.select('DISTINCT rating').map(&:rating)
     if sort_by && sort_by_direction
       @movies = Movie.find(:all, :order => sort_by + " " + sort_by_direction)
     else
