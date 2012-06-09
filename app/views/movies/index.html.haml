@@ -5,15 +5,17 @@
   Include:
   - @all_ratings.each do |rating|
     = rating
-    = check_box_tag "ratings[#{rating}]"
+    = check_box_tag "ratings[#{rating}]", 1, @sel_ratings.has_key?(rating)
+  = hidden_field_tag "sort", params[:sort]
+  = hidden_field_tag "direction", params[:direction]
   = submit_tag 'Refresh', :id => 'ratings_submit'
 
 %table#movies
   %thead
     %tr
-      %th{:class => ("hilite" if params[:sort]=='title')}= link_to "Movie Title", movies_path(:sort => 'title', :direction => 'asc'), :id => 'title_header'
+      %th{:class => ("hilite" if params[:sort]=='title')}= link_to "Movie Title", movies_path(:sort => 'title', :direction => 'asc', :ratings => @sel_ratings), :id => 'title_header'
       %th Rating
-      %th{:class => ("hilite" if params[:sort]=='release_date')}= link_to "Release Date", {:sort => 'release_date', :direction => 'asc'}, :id => 'release_date_header'
+      %th{:class => ("hilite" if params[:sort]=='release_date')}= link_to "Release Date", {:sort => 'release_date', :direction => 'asc', :ratings => @sel_ratings}, :id => 'release_date_header'
       %th More Info
   %tbody
     - @movies.each do |movie|
