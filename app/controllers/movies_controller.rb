@@ -8,7 +8,8 @@ class MoviesController < ApplicationController
   end
 
   def index
-    @all_ratings = Movie.select('DISTINCT rating').map(&:rating)
+    # @all_ratings = Movie.select('DISTINCT rating').map(&:rating)
+    @all_ratings = Movie.ratings
     @sel_ratings = selected_ratings
     @movies = movie_query
   end
