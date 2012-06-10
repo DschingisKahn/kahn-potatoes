@@ -1,5 +1,5 @@
 class MoviesController < ApplicationController
-  helper_method :selected_ratings
+  helper_method :selected_ratings, :movie_query
 
   def show
     id = params[:id] # retrieve movie ID from URI route
@@ -8,14 +8,9 @@ class MoviesController < ApplicationController
   end
 
   def index
-    sort_by, sort_by_direction = params[:sort], params[:direction]
     @all_ratings = Movie.select('DISTINCT rating').map(&:rating)
     @sel_ratings = selected_ratings
-    if sort_by && sort_by_direction
-      @movies = Movie.find(:all, :order => sort_by + " " + sort_by_direction)
-    else
-      @movies = Movie.all
-    end
+    @movies = movie_query
   end
 
   def selected_ratings
@@ -23,6 +18,20 @@ class MoviesController < ApplicationController
       params[:ratings]
     else
       Hash.new(0)
+    end
+  end
+
+  def movie_query
+    sort_by, sort_by_direction = params[:sort], params[:direction]
+
+    if sort_by && sort_by_direction && !@sel_ratings.empty?
+      Movie.where("rating" => @sel_ratings.keys).order(sort_by + " " + sort_by_direction)
+    elsif sort_by && sort_by_direction && @sel_ratings.empty?
+      Movie.order(sort_by + " " + sort_by_direction)
+    elsif not @sel_ratings.empty?
+      Movie.where("rating" => @sel_ratings.keys)
+    else
+      Movie.find(:all)
     end
   end
 
