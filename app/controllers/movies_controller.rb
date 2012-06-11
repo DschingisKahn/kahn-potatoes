@@ -38,9 +38,10 @@ class MoviesController < ApplicationController
   end
 
   def session_filtering
+    if !session[:ratings].is_a?(Hash) then session[:ratings] = Hash.new(0) end
     if params[:sort] then session[:sort] = params[:sort] end
     if params[:direction] then session[:direction] = params[:direction] end
-    if params[:ratings] then session[:ratings] = params[:ratings] end
+    if params[:commit] then session[:ratings] = @sel_ratings end
 
     if (not params[:sort] && params[:direction]) && session[:sort] && session[:direction]
       if session[:ratings].empty?
