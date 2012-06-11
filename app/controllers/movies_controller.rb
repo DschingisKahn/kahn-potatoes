@@ -1,5 +1,5 @@
 class MoviesController < ApplicationController
-  helper_method :selected_ratings, :movie_query
+  helper_method :selected_ratings, :movie_query, :session_filtering
 
   def show
     id = params[:id] # retrieve movie ID from URI route
@@ -11,6 +11,7 @@ class MoviesController < ApplicationController
     # @all_ratings = Movie.select('DISTINCT rating').map(&:rating)
     @all_ratings = Movie.ratings
     @sel_ratings = selected_ratings
+    session_filtering # Do all the session stuff
     @movies = movie_query
   end
 
@@ -33,6 +34,28 @@ class MoviesController < ApplicationController
       Movie.where("rating" => @sel_ratings.keys)
     else
       Movie.find(:all)
+    end
+  end
+
+  def session_filtering
+    if params[:sort] then session[:sort] = params[:sort] end
+    if params[:direction] then session[:direction] = params[:direction] end
+    if params[:ratings] then session[:ratings] = params[:ratings] end
+
+    if (not params[:sort] && params[:direction]) && session[:sort] && session[:direction]
+      if session[:ratings].empty?
+        flash.keep
+        redirect_to movies_path(:sort => session[:sort], :direction => session[:direction])
+      else
+        flash.keep
+        redirect_to movies_path(:sort => session[:sort], :direction => session[:direction], :ratings => session[:ratings])
+      end
+    elsif (not params[:sort] && params[:direction]) && !session[:ratings].empty?
+      flash.keep
+      redirect_to movies_path(:ratings => session[:ratings])
+    elsif params[:sort] && params[:direction] && (not params[:ratings]) && !session[:ratings].empty?
+      flash.keep
+      redirect_to movies_path(:sort => params[:sort], :direction => params[:direction], :ratings => session[:ratings])
     end
   end
 
